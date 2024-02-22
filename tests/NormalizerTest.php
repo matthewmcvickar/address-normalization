@@ -97,4 +97,48 @@ class NormalizerTest extends TestCase
 
         $this->assertFalse($normalizer->parse($badAddress));
     }
+
+    /** @test */
+    public function testHandlesAddressWithoutUnitPrefix()
+    {
+        $normalizer = new Normalizer();
+
+        $addresses = [
+            [ // Test without unit prefix
+                'test' => '1234 W Main Avenue 1W, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave #1W, Chicago, IL 60647'
+            ],
+            [ // Regression test with unit prefix
+                'test' => '1234 W Main Avenue Unit 1W, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave Unit 1W, Chicago, IL 60647'
+            ],
+            [ // Regression test with unit prefix
+                'test' => '1234 W Main Avenue Apartment 1W, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave Apartment 1W, Chicago, IL 60647'
+            ],
+            [ // Regression test with unit prefix
+                'test' => '1234 W Main Avenue #1W, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave #1W, Chicago, IL 60647'
+            ],
+            [ // Regression test with unit prefix
+                'test' => '1234 W Main Avenue Room 1, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave Room 1, Chicago, IL 60647'
+            ],
+            [ // Regression test with unit prefix
+                'test' => '1234 W Main Avenue Apt 1W, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main Ave Apt 1W, Chicago, IL 60647'
+            ],
+            [ // Regression test without any unit
+                'test' => '1234 W Main Street, Chicago, IL, 60647',
+                'expected_result' => '1234 W Main St, Chicago, IL 60647'
+            ],
+        ];
+
+        foreach ($addresses as $address) {
+            $this->assertEquals(
+                $address['expected_result'],
+                (string)$normalizer->parse($address['test'])
+            );
+        }
+    }
 }

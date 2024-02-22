@@ -143,7 +143,7 @@ class Normalizer
 
         $this->zip_regexp = '(\d{5})(?:-?(\d{4})?)';
         $this->corner_regexp = '(?:\band\b|\bat\b|&|\@)';
-        $this->unit_regexp = '(?:(su?i?te|p\W*[om]\W*b(?:ox)?|dept|apt|apartment|ro*m|fl|unit|box)\W+|\#\W*)([\w-]+)';
+        $this->unit_regexp = '(?:(su?i?te|p\W*[om]\W*b(?:ox)?|dept|apt|apartment|ro*m|fl|unit|box)\W+|\#\W*|)([\w-]+)';
         $this->street_regexp =
             '(?:'
             . '(?:(' . $this->direct_regexp . ')\W+'
