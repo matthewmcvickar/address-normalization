@@ -45,9 +45,14 @@ class NormalizerTest extends TestCase
         $this->assertFalse($address);
     }
 
-    public function normalizesAddressesDataProvider()
+    /**
+     * @test
+     */
+    public function testNormalizesAddresses()
     {
-        return [
+        $normalizer = new Normalizer();
+
+        $addresses = [
             [
                 '1234 Main St. SE, Minneapolis, MN 55401',
                 '1234 Main Street Southeast, Minneapolis, MN 55401'
@@ -61,41 +66,32 @@ class NormalizerTest extends TestCase
                 '1234 Main St southeast, Minneapolis, Minnesota 55401'
             ],
         ];
+
+        foreach ($addresses as $address) {
+            $this->assertEquals(
+                (string)$normalizer->parse($address[0]),
+                (string)$normalizer->parse($address[1])
+            );
+        }
     }
 
     /**
      * @test
-     * @dataProvider normalizesAddressesDataProvider
      */
-    public function testNormalizesAddresses($firstAddress, $secondAddress)
+    public function testFailsOnBadAddresses()
     {
         $normalizer = new Normalizer();
 
-        $this->assertEquals(
-            (string)$normalizer->parse($firstAddress),
-            (string)$normalizer->parse($secondAddress)
-        );
-    }
-
-    public function badAddressesDataProvider()
-    {
-        return [
-            'double unit no commas' => ['1234 Main St. SE Unit 101 Unit 101'],
-            'double unit mismatch comma' => ['1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555'],
-            'double unit comma' => ['3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205'],
-            'nonsense' => ['Main Street West Fork Soup Salad'],
+        $addresses = [
+            'double unit no commas' => '1234 Main St. SE Unit 101 Unit 101',
+            'double unit mismatch comma' => '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555',
+            'double unit comma' => '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205',
+            'nonsense' => 'Main Street West Fork Soup Salad',
         ];
-    }
 
-    /**
-     * @test
-     * @dataProvider badAddressesDataProvider
-     */
-    public function testFailsOnBadAddresses($badAddress)
-    {
-        $normalizer = new Normalizer();
-
-        $this->assertFalse($normalizer->parse($badAddress));
+        foreach ($addresses as $address) {
+            $this->assertFalse($normalizer->parse($address));
+        }
     }
 
     /** @test */
