@@ -37,5 +37,5 @@ jobs:
       - name: Install dependencies
         run: composer update --no-progress --no-interaction
 
-      - name: Run tests
-        run: vendor/bin/phpunit
+      - name: Run test suite
+        run: composer run-script test
