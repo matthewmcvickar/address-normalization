@@ -143,7 +143,29 @@ class Normalizer
 
         $this->zip_regexp = '(\d{5})(?:-?(\d{4})?)';
         $this->corner_regexp = '(?:\band\b|\bat\b|&|\@)';
-        $this->unit_regexp = '(?:(su?i?te|p\W*[om]\W*b(?:ox)?|dept|apt|apartment|ro*m|fl|unit|box)\W+|\#\W*|)([\w-]+)';
+
+        /*
+         * Unit pattern. A 'unit' is an apartment, suite, etc.
+         *
+         * There are two capture groups: the unit prefix and the unit value.
+         *
+         * The unit prefix can be:
+         * 1. A word from a set of acceptable words (e.g., 'Apt' or 'Apartment'
+         *    or 'Ste') followed by whitespace or punctuation.
+         * 2. A pound sign (#) followed by whitespace or punctuation.
+         * 3. Missing (no prefix), but only if the unit value contains a number.
+         *
+         * The requirement for a number in the unit value allows us to detect
+         * the end of the street address and the beginning of the Place (City)
+         * when the user doesn't add commas between address segments or when the
+         * Place is a multi-word name like 'Los Angeles.'
+         */
+        $this->unit_regexp = '(?:'
+            . '(su?i?te|p\W*[om]\W*b(?:ox)?|dept|apt|apartment|ro*m|fl|unit|box)\W+'
+            . '|\#\W*'
+            . '|(?=[\w-]*\d)'
+            . ')([\w-]+)';
+
         $this->street_regexp =
             '(?:'
             . '(?:(' . $this->direct_regexp . ')\W+'
