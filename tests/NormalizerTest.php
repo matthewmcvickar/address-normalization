@@ -88,14 +88,10 @@ class NormalizerTest extends TestCase
 
     public static function badAddressesDataProvider() {
         return [
-            // double unit no commas
-            [ '1234 Main St. SE Unit 101 Unit 101' ],
-            // double unit mismatch comma
-            [ '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555' ],
-            // double unit comma
-            [ '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205' ],
-            // nonsense
-            [ 'Main Street West Fork Soup Salad' ],
+            'double unit no commas' => [ '1234 Main St. SE Unit 101 Unit 101' ],
+            'double unit mismatch comma' => [ '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555' ],
+            'double unit comma' => [ '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205' ],
+            'nonsense' => [ 'Main Street West Fork Soup Salad' ],
         ];
     }
 
@@ -113,31 +109,31 @@ class NormalizerTest extends TestCase
 
     public static function addressesWithoutUnitPrefixDataProvider() {
         return [
-            [ // Test without unit prefix
+            'Test without unit prefix' => [
                 'test' => '1234 W Main Avenue 1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave #1W, Chicago, IL 60647'
             ],
-            [ // Regression test with unit prefix
+            'Regression test with "Unit" unit prefix' => [
                 'test' => '1234 W Main Avenue Unit 1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave Unit 1W, Chicago, IL 60647'
             ],
-            [ // Regression test with unit prefix
+            'Regression test with "Apartment" unit prefix' => [
                 'test' => '1234 W Main Avenue Apartment 1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave Apartment 1W, Chicago, IL 60647'
             ],
-            [ // Regression test with unit prefix
+            'Regression test with "#" unit prefix' => [
                 'test' => '1234 W Main Avenue #1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave #1W, Chicago, IL 60647'
             ],
-            [ // Regression test with unit prefix
+            'Regression test with "Room" unit prefix' => [
                 'test' => '1234 W Main Avenue Room 1, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave Room 1, Chicago, IL 60647'
             ],
-            [ // Regression test with unit prefix
+            'Regression test with "Apt" unit prefix' => [
                 'test' => '1234 W Main Avenue Apt 1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave Apt 1W, Chicago, IL 60647'
             ],
-            [ // Regression test without any unit
+            'Regression test without any unit' => [
                 'test' => '1234 W Main Street, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main St, Chicago, IL 60647'
             ],
