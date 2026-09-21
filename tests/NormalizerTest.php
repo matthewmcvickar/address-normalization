@@ -172,6 +172,14 @@ class NormalizerTest extends TestCase
                 'test'            => '123 Main Street 1A Los Angeles CA 90012',
                 'expected_result' => '123 Main St #1A, Los Angeles, CA 90012',
             ],
+            'Multi-word city; without unit prefix; unit is only a number; without commas' => [
+                'test'            => '123 Main Street 1 Los Angeles CA 90012',
+                'expected_result' => '123 Main St #1, Los Angeles, CA 90012',
+            ],
+            'Multi-word city; without unit prefix; unit is only a letter; without commas' => [
+                'test'            => '123 Main Street A Los Angeles CA 90012',
+                'expected_result' => '123 Main St, A Los Angeles, CA 90012',
+            ],
         ];
 
         foreach ($addresses as $address) {
