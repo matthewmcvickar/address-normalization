@@ -178,16 +178,16 @@ class NormalizerTest extends TestCase
             ],
 
             // This is an edge case where we can't tell whether the 'A' is part
-            // of the Street name or a Unit. Since there's a comma, we assume
-            // it's part of the Street.
+            // of the street name or a unit. Since there's a comma, we assume
+            // it's part of the street.
             'Multi-word city; without unit prefix; unit is only a letter; with commas' => [
                 'test'            => '123 Main Street A, Los Angeles, CA 90012',
                 'expected_result' => '123 Main Street A, Los Angeles, CA 90012',
             ],
 
             // This is an edge case where we can't tell whether the 'A' is part
-            // of the Street or the City. Since there's no comma and we've
-            // found 'Street,' we assume it's part of the City.
+            // of the street or the city. Since there's no comma and we've
+            // found 'street,' we assume it's part of the city.
             'Multi-word city; without unit prefix; unit is only a letter; without commas' => [
                 'test'            => '123 Main Street A Los Angeles CA 90012',
                 'expected_result' => '123 Main St, A Los Angeles, CA 90012',

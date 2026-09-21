@@ -156,8 +156,8 @@ class Normalizer
          * 3. Missing (no prefix), but only if the unit value contains a number.
          *
          * The requirement for a number in the unit value allows us to detect
-         * the end of the street address and the beginning of the City when the
-         * user doesn't add commas between address segments or when the City is
+         * the end of the street address and the beginning of the city when the
+         * user doesn't add commas between address segments or when the city is
          * a multi-word name like 'Los Angeles.'
          */
         $this->unit_regexp = '(?:'
