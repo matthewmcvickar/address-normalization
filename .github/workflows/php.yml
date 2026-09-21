@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # PHPUnit only runs on PHP >=8.4, so only run tests on those versions.
-        # For other versions, we'll run PHP syntax checks.
+        # The configured PHPUnit requires PHP >=8.4, so only run PHPUnit tests
+        # on matching PHP versions. For others, run PHP syntax checks.
         include:
           - { php-version: '8.0', run-tests: false }
           - { php-version: '8.1', run-tests: false }
@@ -40,10 +40,10 @@ jobs:
       - name: Validate Composer configuration
         run: composer validate --strict
 
-      # If we're not running tests, remove the Composer requirement for PHPUnit.
-      # The configured PHPUnit requires PHP >=8.4, but our library supports PHP
-      # >=8.0. We can't use Composer's `--no-dev` flag to avoid this, so we just
-      # rip out the `require-dev` section from composer.json.
+      # If not running tests, remove the Composer requirement for PHPUnit. The
+      # configured PHPUnit requires PHP >=8.4, but this library supports PHP
+      # >=8.0. Composer's `--no-dev` flag will still install phpunit, so we just
+      # rip out the `require-dev` and `autoload-dev` sections from the config.
       - name: Remove dev requirements
         if: ${{ !matrix.run-tests }}
         run: |
