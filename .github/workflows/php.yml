@@ -58,7 +58,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer update --prefer-dist --no-progress --no-interaction ${{ matrix.run-tests == false && '--no-dev' || '' }}
+        run: composer update --no-progress --no-interaction ${{ matrix.run-tests == false && '--no-dev' || '' }}
 
       # If PHP >=8.4, run PHPUnit tests.
       - name: Run tests
