@@ -36,6 +36,9 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
 
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
       # If we're not running tests, remove the Composer requirement for PHPUnit.
       # The configured PHPUnit requires PHP >=8.4, but our library supports PHP
       # >=8.0. We can't use Composer's `--no-dev` flag to avoid this, so we just
