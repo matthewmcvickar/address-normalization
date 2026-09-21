@@ -32,10 +32,8 @@ jobs:
       - name: Validate Composer configuration
         run: composer validate --strict
 
-      # Run `composer update` instead of `composer install` because the lockfile
-      # is not committed.
       - name: Install dependencies
-        run: composer update --no-progress --no-interaction
+        run: composer install --no-progress --no-interaction
 
       - name: Run test suite
         run: composer run-script test
