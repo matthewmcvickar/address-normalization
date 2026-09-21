@@ -88,10 +88,10 @@ class NormalizerTest extends TestCase
 
     public static function badAddressesDataProvider() {
         return [
-            'double unit no commas' => [ '1234 Main St. SE Unit 101 Unit 101' ],
-            'double unit mismatch comma' => [ '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555' ],
-            'double unit comma' => [ '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205' ],
-            'nonsense' => [ 'Main Street West Fork Soup Salad' ],
+            'double unit no commas' => ['1234 Main St. SE Unit 101 Unit 101'],
+            'double unit mismatch comma' => ['1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555'],
+            'double unit comma' => ['3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205'],
+            'nonsense' => ['Main Street West Fork Soup Salad'],
         ];
     }
 
