@@ -3,6 +3,7 @@
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ZeroDaHero\Normalizer;
 use ZeroDaHero\Address;
 use ZeroDaHero\SimpleAddress;
@@ -45,61 +46,58 @@ class NormalizerTest extends TestCase
         $this->assertFalse($address);
     }
 
-    /**
-     * @test
-     */
-    public function testNormalizesAddresses()
-    {
-        $normalizer = new Normalizer();
-
-        $addresses = [
+    public static function normalizesAddressesDataProvider() {
+        return [
             [
-                '1234 Main St. SE, Minneapolis, MN 55401',
-                '1234 Main Street Southeast, Minneapolis, MN 55401'
+                '1234 Main Street Southeast, Minneapolis, MN 55401',
+                '1234 Main St. SE, Minneapolis, MN 55401'
             ],
             [
-                '1234 Main St. SE, Minneapolis, MN 55401',
-                '1234 Main St SE, Minneapolis, Minnesota 55401'
+                '1234 Main St SE, Minneapolis, Minnesota 55401',
+                '1234 Main St. SE, Minneapolis, MN 55401'
             ],
             [
-                '1234 Main St. SE, Minneapolis, MN 55401',
-                '1234 Main St southeast, Minneapolis, Minnesota 55401'
+                '1234 Main St southeast, Minneapolis, Minnesota 55401',
+                '1234 Main St. SE, Minneapolis, MN 55401'
             ],
         ];
-
-        foreach ($addresses as $address) {
-            $this->assertEquals(
-                (string)$normalizer->parse($address[0]),
-                (string)$normalizer->parse($address[1])
-            );
-        }
     }
 
-    /**
-     * @test
-     */
-    public function testFailsOnBadAddresses()
+    #[DataProvider('normalizesAddressesDataProvider')]
+    public function testNormalizesAddresses($test, $expected_result)
     {
         $normalizer = new Normalizer();
 
-        $addresses = [
-            'double unit no commas' => '1234 Main St. SE Unit 101 Unit 101',
-            'double unit mismatch comma' => '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555',
-            'double unit comma' => '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205',
-            'nonsense' => 'Main Street West Fork Soup Salad',
-        ];
+        $this->assertEquals(
+            (string)$normalizer->parse($expected_result),
+            (string)$normalizer->parse($test)
+        );
+    }
 
-        foreach ($addresses as $address) {
-            $this->assertFalse($normalizer->parse($address));
-        }
+    public static function badAddressesDataProvider() {
+        return [
+            // double unit no commas
+            [ '1234 Main St. SE Unit 101 Unit 101' ],
+            // double unit mismatch comma
+            [ '1234 Main St. SE, Unit 101 Apt 101, Minneapolis, MN 55555' ],
+            // double unit comma
+            [ '3333 West End Ave, Unit 301 Unit 301, Nashville, TN, 37205' ],
+            // nonsense
+            [ 'Main Street West Fork Soup Salad' ],
+        ];
     }
 
     /** @test */
-    public function testHandlesAddressWithoutUnitPrefix()
+    #[DataProvider('badAddressesDataProvider')]
+    public function testFailsOnBadAddresses($address)
     {
         $normalizer = new Normalizer();
 
-        $addresses = [
+        $this->assertFalse($normalizer->parse($address));
+    }
+
+    public static function addressesWithoutUnitPrefixDataProvider() {
+        return [
             [ // Test without unit prefix
                 'test' => '1234 W Main Avenue 1W, Chicago, IL, 60647',
                 'expected_result' => '1234 W Main Ave #1W, Chicago, IL 60647'
@@ -129,21 +127,22 @@ class NormalizerTest extends TestCase
                 'expected_result' => '1234 W Main St, Chicago, IL 60647'
             ],
         ];
-
-        foreach ($addresses as $address) {
-            $this->assertEquals(
-                $address['expected_result'],
-                (string)$normalizer->parse($address['test'])
-            );
-        }
     }
 
     /** @test */
-    public function testHandlesAddressWithMultiWordCity()
+    #[DataProvider('addressesWithoutUnitPrefixDataProvider')]
+    public function testHandlesAddressWithoutUnitPrefix($test, $expected_result)
     {
         $normalizer = new Normalizer();
 
-        $addresses = [
+        $this->assertEquals(
+            $expected_result,
+            (string)$normalizer->parse($test)
+        );
+    }
+
+    public static function addressesWithMultiWordCityDataProvider() {
+        return [
             'Two-word city; without unit; with commas' => [
                 'test'            => '123 Main Street, Los Angeles, CA 90012',
                 'expected_result' => '123 Main St, Los Angeles, CA 90012',
@@ -193,12 +192,17 @@ class NormalizerTest extends TestCase
                 'expected_result' => '123 Main St, A Los Angeles, CA 90012',
             ],
         ];
+    }
 
-        foreach ($addresses as $address) {
-            $this->assertEquals(
-                $address['expected_result'],
-                (string)$normalizer->parse($address['test'])
-            );
-        }
+    /** @test */
+    #[DataProvider('addressesWithMultiWordCityDataProvider')]
+    public function testHandlesAddressWithMultiWordCity($test, $expected_result)
+    {
+        $normalizer = new Normalizer();
+
+        $this->assertEquals(
+            $expected_result,
+            (string)$normalizer->parse($test)
+        );
     }
 }
