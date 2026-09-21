@@ -2,43 +2,81 @@ name: PHP Composer
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 permissions:
   contents: read
 
 jobs:
   build:
+    name: PHP ${{ matrix.php-version }}${{ matrix.run-tests && ' (tests)' || ' (compatibility)' }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0, 8.1, 8.2]
+        # PHPUnit only runs on PHP >=8.4, so only run tests on those versions.
+        # For other versions, we'll run a PHP compatibility test.
+        include:
+          - { php-version: '8.0', run-tests: false }
+          - { php-version: '8.1', run-tests: false }
+          - { php-version: '8.2', run-tests: false }
+          - { php-version: '8.3', run-tests: false }
+          - { php-version: '8.4', run-tests: true }
+          - { php-version: '8.5', run-tests: true }
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
-          coverage: none
+          php-version: ${{ matrix.php-version }}
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+      # If we're not running tests, remove the Composer requirement for PHPUnit.
+      # PHPUnit can only run on PHP >=8.4, but our address-normalization library
+      # supports PHP >=8.0. We can't use Composer's `--no-dev` flag to avoid
+      # this, so we just rip out the `require-dev` section from composer.json.
+      - name: Remove dev requirements
+        if: ${{ !matrix.run-tests }}
+        run: |
+          jq 'del(."require-dev")' composer.json > composer.json.tmp
+          mv composer.json.tmp composer.json
 
-      - name: Cache Composer packages
+      - name: Get composer cache directory
         id: composer-cache
-        uses: actions/cache@v3
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress --no-interaction ${{ matrix.run-tests == false && '--no-dev' || '' }}
 
-      - name: Run test suite
-        run: composer run-script test
+      # If PHP >=8.4, run PHPUnit tests.
+      - name: Run tests
+        if: ${{ matrix.run-tests }}
+        run: vendor/bin/phpunit
+
+      # If PHP <8.4, run compatibility check.
+      - name: Check syntax of every source file
+        if: ${{ !matrix.run-tests }}
+        run: find src -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      # Load the library and parse one address as a smoke test.
+      - name: Test library
+        if: ${{ !matrix.run-tests }}
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            $address = ( new ZeroDaHero\Normalizer() )->parse( "123 Main Street, Fall River, MA 02720" );
+            echo $address, PHP_EOL;
+            exit( $address ? 0 : 1 );
+          '
