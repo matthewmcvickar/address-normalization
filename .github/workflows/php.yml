@@ -35,6 +35,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer
 
       - name: Validate Composer configuration
         run: composer validate --strict
@@ -49,17 +50,7 @@ jobs:
           jq 'del(."require-dev", ."autoload-dev")' composer.json > composer.json.tmp
           mv composer.json.tmp composer.json
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
+      # Run `composer update` because the lockfile is not committed.
       - name: Install dependencies
         run: composer update --no-progress --no-interaction ${{ matrix.run-tests == false && '--no-dev' || '' }}
 
