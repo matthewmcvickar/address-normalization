@@ -137,4 +137,48 @@ class NormalizerTest extends TestCase
             );
         }
     }
+
+    /** @test */
+    public function testHandlesAddressWithMultiWordCity()
+    {
+        $normalizer = new Normalizer();
+
+        $addresses = [
+            'Two-word city' => [
+                'test'            => '123 Main Street, Los Angeles, CA 90012',
+                'expected_result' => '123 Main St, Los Angeles, CA 90012',
+            ],
+            'Three-word city' => [
+                'test'            => '123 Main Street, San Luis Obispo, CA 93405',
+                'expected_result' => '123 Main St, San Luis Obispo, CA 93405',
+            ],
+            'Multi-word city; without commas' => [
+                'test'            => '123 Main Street Los Angeles CA 90012',
+                'expected_result' => '123 Main St, Los Angeles, CA 90012',
+            ],
+            'Multi-word city; with unit prefix' => [
+                'test'            => '123 Main Street Apt 14A, Los Angeles, CA 90012',
+                'expected_result' => '123 Main St Apt 14A, Los Angeles, CA 90012',
+            ],
+            'Multi-word city; without unit prefix' => [
+                'test'            => '123 Main Street 1A, Los Angeles, CA 90012',
+                'expected_result' => '123 Main St #1A, Los Angeles, CA 90012',
+            ],
+            'Multi-word city; with unit prefix; without commas' => [
+                'test'            => '123 Main Street Apt 14, Los Angeles, CA 90012',
+                'expected_result' => '123 Main St Apt 14, Los Angeles, CA 90012',
+            ],
+            'Multi-word city; without unit prefix; without commas' => [
+                'test'            => '123 Main Street 1A Los Angeles CA 90012',
+                'expected_result' => '123 Main St #1A, Los Angeles, CA 90012',
+            ],
+        ];
+
+        foreach ($addresses as $address) {
+            $this->assertEquals(
+                $address['expected_result'],
+                (string)$normalizer->parse($address['test'])
+            );
+        }
+    }
 }
