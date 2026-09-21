@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         # PHPUnit only runs on PHP >=8.4, so only run tests on those versions.
         # For other versions, we'll run PHP syntax checks.
