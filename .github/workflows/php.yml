@@ -11,14 +11,14 @@ permissions:
 
 jobs:
   build:
-    name: PHP ${{ matrix.php-version }}${{ matrix.run-tests && ' (tests)' || ' (compatibility)' }}
+    name: PHP ${{ matrix.php-version }}${{ matrix.run-tests && ' (tests)' || ' (syntax)' }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: true
       matrix:
         # PHPUnit only runs on PHP >=8.4, so only run tests on those versions.
-        # For other versions, we'll run a PHP compatibility test.
+        # For other versions, we'll run PHP syntax checks.
         include:
           - { php-version: '8.0', run-tests: false }
           - { php-version: '8.1', run-tests: false }
@@ -65,8 +65,8 @@ jobs:
         if: ${{ matrix.run-tests }}
         run: vendor/bin/phpunit
 
-      # If PHP <8.4, run compatibility check.
-      - name: Check syntax of every source file
+      # If PHP <8.4, run syntax check.
+      - name: Check PHP syntax
         if: ${{ !matrix.run-tests }}
         run: find src -name '*.php' -print0 | xargs -0 -n1 php -l
 
