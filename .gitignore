@@ -1,6 +1,7 @@
-.idea/*
 .DS_Store
-/nbproject/
+.idea/*
 .phpunit.cache
 .phpunit.result.cache
+/nbproject/
+composer.lock
 vendor
