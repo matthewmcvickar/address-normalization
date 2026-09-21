@@ -1,5 +1,13 @@
 <?php
 
+/*
+NOTE:
+This file use both the docblock syntax *and* attribute syntax for DataProviders.
+Because this repository supports PHP >=8.2, it supports PHPUnit 11, 12, and 13.
+The DataProviders syntax was changed in v12. (Using both causes no problems, as
+the docblock syntax is ignored as of v12.)
+*/
+
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -63,6 +71,10 @@ class NormalizerTest extends TestCase
         ];
     }
 
+    /**
+     * @test
+     * @dataProvider normalizesAddressesDataProvider
+     */
     #[DataProvider('normalizesAddressesDataProvider')]
     public function testNormalizesAddresses($test, $expected_result)
     {
@@ -87,7 +99,10 @@ class NormalizerTest extends TestCase
         ];
     }
 
-    /** @test */
+    /**
+     * @test
+     * @dataProvider badAddressesDataProvider
+     */
     #[DataProvider('badAddressesDataProvider')]
     public function testFailsOnBadAddresses($address)
     {
@@ -129,7 +144,10 @@ class NormalizerTest extends TestCase
         ];
     }
 
-    /** @test */
+    /**
+     * @test
+     * @dataProvider addressesWithoutUnitPrefixDataProvider
+     */
     #[DataProvider('addressesWithoutUnitPrefixDataProvider')]
     public function testHandlesAddressWithoutUnitPrefix($test, $expected_result)
     {
@@ -194,7 +212,10 @@ class NormalizerTest extends TestCase
         ];
     }
 
-    /** @test */
+    /**
+     * @test
+     * @dataProvider addressesWithMultiWordCityDataProvider
+     */
     #[DataProvider('addressesWithMultiWordCityDataProvider')]
     public function testHandlesAddressWithMultiWordCity($test, $expected_result)
     {

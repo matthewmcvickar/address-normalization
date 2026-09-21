@@ -11,21 +11,13 @@ permissions:
 
 jobs:
   build:
-    name: PHP ${{ matrix.php-version }}${{ matrix.run-tests && ' (tests)' || ' (syntax)' }}
+    name: PHP ${{ matrix.php-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        # The configured PHPUnit requires PHP >=8.4, so only run PHPUnit tests
-        # on matching PHP versions. For others, run PHP syntax checks.
-        include:
-          - { php-version: '8.0', run-tests: false }
-          - { php-version: '8.1', run-tests: false }
-          - { php-version: '8.2', run-tests: false }
-          - { php-version: '8.3', run-tests: false }
-          - { php-version: '8.4', run-tests: true }
-          - { php-version: '8.5', run-tests: true }
+        php-version: ['8.2', '8.3', '8.4', '8.5']
 
     steps:
       - name: Check out repository
@@ -40,37 +32,10 @@ jobs:
       - name: Validate Composer configuration
         run: composer validate --strict
 
-      # If not running tests, remove the Composer requirement for PHPUnit. The
-      # configured PHPUnit requires PHP >=8.4, but this library supports PHP
-      # >=8.0. Composer's `--no-dev` flag will still install phpunit, so we just
-      # rip out the `require-dev` and `autoload-dev` sections from the config.
-      - name: Remove dev requirements
-        if: ${{ !matrix.run-tests }}
-        run: |
-          jq 'del(."require-dev", ."autoload-dev")' composer.json > composer.json.tmp
-          mv composer.json.tmp composer.json
-
-      # Run `composer update` because the lockfile is not committed.
+      # Run `composer update` instead of `composer install` because the lockfile
+      # is not committed.
       - name: Install dependencies
-        run: composer update --no-progress --no-interaction ${{ matrix.run-tests == false && '--no-dev' || '' }}
+        run: composer update --no-progress --no-interaction
 
-      # If PHP >=8.4, run PHPUnit tests.
       - name: Run tests
-        if: ${{ matrix.run-tests }}
         run: vendor/bin/phpunit
-
-      # If PHP <8.4, run syntax check.
-      - name: Check PHP syntax
-        if: ${{ !matrix.run-tests }}
-        run: find src -name '*.php' -print0 | xargs -0 -n1 php -l
-
-      # Load the library and parse one address as a smoke test.
-      - name: Test library
-        if: ${{ !matrix.run-tests }}
-        run: |
-          php -r '
-            require "vendor/autoload.php";
-            $address = ( new ZeroDaHero\Normalizer() )->parse( "123 Main Street, Fall River, MA 02720" );
-            echo $address, PHP_EOL;
-            exit( $address ? 0 : 1 );
-          '

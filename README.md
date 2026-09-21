@@ -1,4 +1,5 @@
 # Basic Address Normalizer
+
 [![Build Status](https://travis-ci.org/zerodahero/address-normalization.svg?branch=master)](https://travis-ci.org/zerodahero/address-normalization)
 
 ## Purpose
@@ -108,6 +109,7 @@ $address->toArray();
 ```
 
 ### Hashing
+
 If you only need to make use of a consistent way of hashing (e.g. if you're starting with a dependable 5-part address, such as from a 3rd party service), you can build a `SimpleAddress`.
 
 ```php
