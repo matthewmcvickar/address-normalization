@@ -144,23 +144,23 @@ class NormalizerTest extends TestCase
         $normalizer = new Normalizer();
 
         $addresses = [
-            'Two-word city' => [
+            'Two-word city; without unit; with commas' => [
                 'test'            => '123 Main Street, Los Angeles, CA 90012',
                 'expected_result' => '123 Main St, Los Angeles, CA 90012',
             ],
-            'Three-word city' => [
+            'Three-word city; without unit; with commas' => [
                 'test'            => '123 Main Street, San Luis Obispo, CA 93405',
                 'expected_result' => '123 Main St, San Luis Obispo, CA 93405',
             ],
-            'Multi-word city; without commas' => [
+            'Multi-word city; without unit; without commas' => [
                 'test'            => '123 Main Street Los Angeles CA 90012',
                 'expected_result' => '123 Main St, Los Angeles, CA 90012',
             ],
-            'Multi-word city; with unit prefix' => [
+            'Multi-word city; with unit prefix; with commas' => [
                 'test'            => '123 Main Street Apt 14A, Los Angeles, CA 90012',
                 'expected_result' => '123 Main St Apt 14A, Los Angeles, CA 90012',
             ],
-            'Multi-word city; without unit prefix' => [
+            'Multi-word city; without unit prefix; with commas' => [
                 'test'            => '123 Main Street 1A, Los Angeles, CA 90012',
                 'expected_result' => '123 Main St #1A, Los Angeles, CA 90012',
             ],
@@ -176,6 +176,18 @@ class NormalizerTest extends TestCase
                 'test'            => '123 Main Street 1 Los Angeles CA 90012',
                 'expected_result' => '123 Main St #1, Los Angeles, CA 90012',
             ],
+
+            // This is an edge case where we can't tell whether the 'A' is part
+            // of the Street name or a Unit. Since there's a comma, we assume
+            // it's part of the Street.
+            'Multi-word city; without unit prefix; unit is only a letter; with commas' => [
+                'test'            => '123 Main Street A, Los Angeles, CA 90012',
+                'expected_result' => '123 Main Street A, Los Angeles, CA 90012',
+            ],
+
+            // This is an edge case where we can't tell whether the 'A' is part
+            // of the Street or the City. Since there's no comma and we've
+            // found 'Street,' we assume it's part of the City.
             'Multi-word city; without unit prefix; unit is only a letter; without commas' => [
                 'test'            => '123 Main Street A Los Angeles CA 90012',
                 'expected_result' => '123 Main St, A Los Angeles, CA 90012',
